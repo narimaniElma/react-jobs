@@ -1,26 +1,26 @@
-import { useState, useEffect } from 'react'
-import JobListing from '../components/JobListing'
-import Spinner from '../components/Spinner'
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import JobListing from '../components/JobListing';
+import Spinner from '../components/Spinner';
 
 const JobListings = ({ isHome }) => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchJobs = async () => {
+    const apiUrl = `/api/jobs${isHome ? '?_limit=3' : ''}`;
+
+    try {
+      const { data } = await axios(apiUrl);
+      setJobs(data);
+    } catch (error) {
+      console.log('Error fetching data', error.response);
+    } finally {
+      setLoading(false);
+    };
+  }
+
   useEffect(() => {
-    const fetchJobs = async () => {
-      const apiUrl = `/api/jobs${isHome ? '?_limit=3' : ''}`;
-
-      try {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-        setJobs(data);
-      } catch (error) {
-        console.log('Error fetching data', error);
-      } finally {
-        setLoading(false);
-      };
-    }
-
     fetchJobs();
   }, []);
 
