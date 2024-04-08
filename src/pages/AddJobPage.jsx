@@ -1,42 +1,53 @@
-import { useState } from "react";
+import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { jobSchema } from "../schemas";
 
 const AddJobPage = ({ addJobSubmit }) => {
-    const [type, setType] = useState('Full-Time');
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [location, setLocation] = useState('');
-    const [salary, setSalary] = useState('Under $50K');
-    const [companyName, setCompanyName] = useState('');
-    const [companyDescription, setCompanyDescription] = useState('');
-    const [contactEmail, setContactEmail] = useState('');
-    const [contactPhone, setContactPhone] = useState('');
+    const { values, errors, touched, handleBlur, handleChange, handleSubmit } = useFormik({
+        initialValues: {
+            type: 'Full-Time',
+            title: '',
+            description: '',
+            location: '',
+            salary: 'Under $50K',
+            companyName: '',
+            companyDescription: '',
+            contactEmail: '',
+            contactPhone: '',
+        },
+        validationSchema: jobSchema,
+        onSubmit: (values, actions) => {
+            submitForm(values);
+            actions.resetForm();
+        },
+    })
+
+    const classInput = errors.title && touched.title ? "border border-red-500 rounded w-full py-2 px-3 mb-2" : 'border rounded w-full py-2 px-3 mb-2'
 
     const navigate = useNavigate();
 
-    const submitForm = (e) => {
-        e.preventDefault();
+    const submitForm = (values) => {
 
         const newJob = {
-            type,
-            title,
-            description,
-            location,
-            salary,
+            type: values.type,
+            title: values.title,
+            description: values.description,
+            location: values.location,
+            salary: values.salary,
             company: {
-                name: companyName,
-                description: companyDescription,
-                contactEmail,
-                contactPhone
+                name: values.companyName,
+                description: values.companyDescription,
+                contactEmail: values.contactEmail,
+                contactPhone: values.contactPhone
             }
         }
 
         addJobSubmit(newJob);
 
-        toast.success('Job added successfully')
+        toast.success('Job added successfully');
 
-        navigate('/jobs')
+        navigate('/jobs');
     }
 
     return (
@@ -45,71 +56,71 @@ const AddJobPage = ({ addJobSubmit }) => {
                 <div
                     className="bg-white px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0"
                 >
-                    <form onSubmit={submitForm}>
+                    <form onSubmit={handleSubmit}>
                         <h2 className="text-3xl text-center font-semibold mb-6">Add Job</h2>
 
                         <div className="mb-4">
                             <label htmlFor="type" className="block text-gray-700 font-bold mb-2"
-                            >Job Type</label
-                            >
+                            >Job Type</label>
                             <select
                                 id="type"
-                                name="type"
-                                className="border rounded w-full py-2 px-3"
+                                name="type" className="border rounded w-full py-2 px-3"
                                 required
-                                value={type}
-                                onChange={(e) => setType(e.target.value)}
+                                value={values.type}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
                             >
                                 <option value="Full-Time">Full-Time</option>
                                 <option value="Part-Time">Part-Time</option>
                                 <option value="Remote">Remote</option>
                                 <option value="Internship">Internship</option>
                             </select>
+                            {errors.type && touched.type && <div>{errors.type}</div>}
                         </div>
 
                         <div className="mb-4">
                             <label className="block text-gray-700 font-bold mb-2"
-                            >Job Listing Name</label
-                            >
+                            >Job Listing Name</label>
                             <input
                                 type="text"
                                 id="title"
                                 name="title"
-                                className="border rounded w-full py-2 px-3 mb-2"
+                                className={classInput}
                                 placeholder="eg. Beautiful Apartment In Miami"
-                                required
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
+                                value={values.title}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
                             />
+                            {errors.title && touched.title && <div className="text-red-500 text-xs">{errors.title}</div>}
                         </div>
+
                         <div className="mb-4">
                             <label
                                 htmlFor="description"
                                 className="block text-gray-700 font-bold mb-2"
-                            >Description</label
-                            >
+                            >Description</label>
                             <textarea
                                 id="description"
                                 name="description"
                                 className="border rounded w-full py-2 px-3"
                                 rows="4"
                                 placeholder="Add any job duties, expectations, requirements, etc"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
+                                value={values.description}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
                             ></textarea>
                         </div>
 
                         <div className="mb-4">
                             <label htmlFor="type" className="block text-gray-700 font-bold mb-2"
-                            >Salary</label
-                            >
+                            >Salary</label>
                             <select
                                 id="salary"
                                 name="salary"
                                 className="border rounded w-full py-2 px-3"
-                                required
-                                value={salary}
-                                onChange={(e) => setSalary(e.target.value)}
+                                value={values.salary}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
                             >
                                 <option value="Under $50K">Under $50K</option>
                                 <option value="$50K - 60K">$50K - $60K</option>
@@ -133,85 +144,85 @@ const AddJobPage = ({ addJobSubmit }) => {
                                 type='text'
                                 id='location'
                                 name='location'
-                                className='border rounded w-full py-2 px-3 mb-2'
+                                className={classInput}
                                 placeholder='Company Location'
-                                required
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                            />
+                                value={values.location}
+                                onChange={handleChange}
+                                onBlur={handleBlur} />
+                            {errors.location && touched.location && <div className="text-red-500 text-xs">{errors.location}</div>}
                         </div>
 
                         <h3 className="text-2xl mb-5">Company Info</h3>
 
                         <div className="mb-4">
-                            <label htmlFor="company" className="block text-gray-700 font-bold mb-2"
-                            >Company Name</label
-                            >
+                            <label htmlFor="companyName" className="block text-gray-700 font-bold mb-2"
+                            >Company Name</label>
                             <input
                                 type="text"
-                                id="company"
-                                name="company"
+                                id="companyName"
+                                name="companyName"
                                 className="border rounded w-full py-2 px-3"
                                 placeholder="Company Name"
-                                value={companyName}
-                                onChange={(e) => setCompanyName(e.target.value)}
+                                value={values.companyName}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
                             />
                         </div>
 
                         <div className="mb-4">
                             <label
-                                htmlFor="company_description"
+                                htmlFor="companyDescription"
                                 className="block text-gray-700 font-bold mb-2"
-                            >Company Description</label
-                            >
+                            >Company Description</label>
                             <textarea
-                                id="company_description"
-                                name="company_description"
+                                id="companyDescription"
+                                name="companyDescription"
                                 className="border rounded w-full py-2 px-3"
                                 rows="4"
                                 placeholder="What does your company do?"
-                                value={companyDescription}
-                                onChange={(e) => setCompanyDescription(e.target.value)}
+                                value={values.companyDescription}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
                             ></textarea>
                         </div>
 
                         <div className="mb-4">
                             <label
-                                htmlFor="contact_email"
+                                htmlFor="contactEmail"
                                 className="block text-gray-700 font-bold mb-2"
-                            >Contact Email</label
-                            >
+                            >Contact Email</label>
                             <input
                                 type="email"
-                                id="contact_email"
-                                name="contact_email"
-                                className="border rounded w-full py-2 px-3"
+                                id="contactEmail"
+                                name="contactEmail"
+                                className={classInput}
                                 placeholder="Email address for applicants"
-                                required
-                                value={contactEmail}
-                                onChange={(e) => setContactEmail(e.target.value)}
+                                value={values.contactEmail}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
                             />
+                            {errors.contactEmail && touched.contactEmail && <div className="text-red-500 text-xs">{errors.contactEmail}</div>}
                         </div>
+
                         <div className="mb-4">
                             <label
-                                htmlFor="contact_phone"
+                                htmlFor="contactPhone"
                                 className="block text-gray-700 font-bold mb-2"
-                            >Contact Phone</label
-                            >
+                            >Contact Phone</label>
                             <input
-                                type="tel"
-                                id="contact_phone"
-                                name="contact_phone"
-                                className="border rounded w-full py-2 px-3"
+                                type="number"
+                                id="contactPhone"
+                                name="contactPhone" className="border rounded w-full py-2 px-3"
                                 placeholder="Optional phone for applicants"
-                                value={contactPhone}
-                                onChange={(e) => setContactPhone(e.target.value)}
+                                value={values.contactPhone}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
                             />
                         </div>
 
                         <div>
                             <button
-                                className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
+                                className='bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline'
                                 type="submit"
                             >
                                 Add Job
