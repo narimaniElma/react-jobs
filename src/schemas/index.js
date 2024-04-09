@@ -1,7 +1,7 @@
 import * as yup from "yup";
 
 export const jobSchema = yup.object().shape({
-  type: yup.string(),
+  type: yup.string().oneOf(["Full-Time", "Part-Time", "Remote", "Internship"]),
   title: yup
     .string()
     .min(3, "Must be at least 3 characters")
